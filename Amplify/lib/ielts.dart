@@ -1,0 +1,786 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_tts/flutter_tts.dart';
+
+class IELTSExamPage extends StatefulWidget {
+  const IELTSExamPage({super.key});
+
+  @override
+  State<IELTSExamPage> createState() => _IELTSExamPageState();
+}
+
+class _IELTSExamPageState extends State<IELTSExamPage> {
+  final FlutterTts _flutterTts = FlutterTts();
+  bool _isPlaying = false;
+
+  // Helper methods for building UI components
+  Widget _buildSectionTitle(String text) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.grey[100],
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey[300]!),
+      ),
+      child: Text(
+        text,
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 16,
+          color: Colors.black87,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuestionField(String text) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      margin: const EdgeInsets.symmetric(vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey[300]!),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            text,
+            style: const TextStyle(fontSize: 14),
+          ),
+          if (text.contains('__________'))
+            Container(
+              height: 40,
+              margin: const EdgeInsets.only(top: 8),
+              child: TextField(
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  // Multiple sets of exams
+  final List<Map<String, dynamic>> examSets = [
+    // Set 1
+    {
+      'name': 'Exam Set 1',
+      'color': Colors.blue,
+      'listeningTranscript': """
+Manager: Hello, this is Bridge Street Apartments. How can I help you?
+Caller: Hi, I'm looking for an apartment for rent on Bridge Street.
+Manager: Yes, we have one at number 23 Bridge Street.
+Caller: What utilities are included?
+Manager: Gas, heat, water, electricity, and phone are included.
+Caller: What about other utilities?
+Manager: Cable TV is not included.
+Caller: What's the public transport like?
+Manager: There's underground and bus services nearby.
+Caller: Great. My name is John Smith.
+Manager: Okay, John. For the meeting, bring your driving license, passport, and reference from employer.
+Caller: When can we meet?
+Manager: How about 6:00 PM at the office?
+Caller: Perfect.
+""",
+      'listeningQuestions': [
+        'Questions 1-5: Complete the information below. Write NO MORE THAN ONE WORD OR A NUMBER for each answer.',
+        'Street: Bridge street',
+        'Street №: (1) __________',
+        'Included utilities: Gas, heat, water, (2) __________, phone',
+        'Not included utilities: (3) __________',
+        'Public transport: Underground, (4) __________',
+        'Tenant\'s name: John (5) __________',
+        'Questions 6-8: Choose THREE letters, A-F.',
+        'Which THREE things should the caller bring to the meeting?',
+        'A. Driving license',
+        'B. Passport',
+        'C. Tax bill',
+        'D. Employment contract',
+        'E. Reference from a friend or colleague',
+        'F. Reference from an employer',
+        'Questions 9-10: Choose the correct letters, A, B, or C.',
+        '9. What time do the caller and apartment manager decide to meet?',
+        'A. 5:30 PM B. 6:00 PM C. 6:30 PM',
+        '10. Where do they decide to meet?',
+        'A. Near the manager\'s apartment B. At the caller\'s future apartment C. At the office',
+      ],
+      'readingPassage': """
+Electroreception
+
+A Open your eyes in sea water and it is difficult to see much more than a murky, bleary green colour. Sounds, too, are garbled and difficult to comprehend. Without specialised equipment humans would be lost in these deep sea habitats, so how do fish make it seem so easy? Much of this is due to a biological phenomenon known as electroreception – the ability to perceive and act upon electrical stimuli as part of the overall senses. This ability is only found in aquatic or amphibious species because water is an efficient conductor of electricity.
+
+B Electroreception comes in two variants. While all animals (including humans) generate electric signals, because they are emitted by the nervous system, some animals have the ability – known as passive electroreception – to receive and decode electric signals generated by other animals in order to sense their location.
+
+C Other creatures can go further still, however. Animals with active electroreception possess bodily organs that generate special electric signals on cue. These can be used for mating signals and territorial displays as well as locating objects in the water. Active electroreceptors can differentiate between the various resistances that their electrical currents encounter. This can help them identify whether another creature is prey, predator or something that is best left alone. Active electroreception has a range of about one body length – usually just enough to give its host time to get out of the way or go in for the kill.
+
+D One fascinating use of active electroreception – known as the Jamming Avoidance Response mechanism – has been observed between members of some species known as the weakly electric fish. When two such electric fish meet in the ocean using the same frequency, each fish will then shift the frequency of its discharge so that they are transmitting on different frequencies. Doing so prevents their electroreception faculties from becoming jammed. Long before citizens' band radio users first had to yell "Get off my frequency!" at hapless novices cluttering the air waves, at least one species had found a way to peacefully and quickly resolve this type of dispute.
+
+E Electroreception can also play an important role in animal defences. Rays are one such example. Young ray embryos develop inside egg cases that are attached to the sea bed. The embryos keep their tails in constant motion so as to pump water and allow them to breathe through the egg's casing. If the embryo's electroreceptors detect the presence of a predatory fish in the vicinity, however, the embryo stops moving (and in so doing ceases transmitting electric currents) until the fish has moved on. Because marine life of various types is often travelling past, the embryo has evolved only to react to signals that are characteristic of the respiratory movements of potential predators such as sharks.
+
+F Many people fear swimming in the ocean because of sharks. In some respects, this concern is well grounded – humans are poorly equipped when it comes to electroreceptive defence mechanisms. Sharks, meanwhile, hunt with extraordinary precision. They initially lock onto their prey through a keen sense of smell (two thirds of a shark's brain is devoted entirely to its olfactory organs). As the shark reaches proximity to its prey, it tunes into electric signals that ensure a precise strike on its target; this sense is so strong that the shark even attacks blind by letting its eyes recede for protection.
+
+G Normally, when humans are attacked it is purely by accident. Since sharks cannot detect from electroreception whether or not something will satisfy their tastes, they tend to "try before they buy", taking one or two bites and then assessing the results (our sinewy muscle does not compare well with plumper, softer prey such as seals). Repeat attacks are highly likely once a human is bleeding, however; the force of the electric field is heightened by salt in the blood which creates the perfect setting for a feeding frenzy. In areas where shark attacks on humans are likely to occur, scientists are exploring ways to create artificial electroreceptors that would disorient the sharks and repel them from swimming beaches.
+
+H There is much that we do not yet know concerning how electroreception functions. Although researchers have documented how electroreception alters hunting, defence and communication systems through observation, the exact neurological processes that encode and decode this information are unclear. Scientists are also exploring the role electroreception plays in navigation. Some have proposed that salt water and magnetic fields from the Earth's core may interact to form electrical currents that sharks use for migratory purposes.
+""",
+      'readingQuestions': [
+        'Questions 1–6: Which paragraph contains the following information?',
+        '1. how electroreception can be used to help fish reproduce',
+        '2. a possible use for electroreception that will benefit humans',
+        '3. the term for the capacity which enables an animal to pick up but not send out electrical signals',
+        '4. why only creatures that live in or near water have electroreceptive abilities',
+        '5. how electroreception might help creatures find their way over long distances',
+        '6. a description of how some fish can avoid disrupting each other\'s electric signals',
+        'Questions 7–9: Label the diagram.',
+        'Shark\'s 7 ………………… alert the young ray to its presence',
+        'Embryo moves its 8 ………………… in order to breathe',
+        'Embryo stops sending 9 ………………… when predator close by',
+        'Questions 10–13: Complete the summary below.',
+        'Shark Attack',
+        'A shark is a very effective hunter. Firstly, it uses its 10 ……………….. to smell its target. When the shark gets close, it uses 11 ……………….. to guide it toward an accurate attack. Within the final few feet the shark rolls its eyes back into its head. Humans are not popular food sources for most sharks due to their 12 ………………... Nevertheless, once a shark has bitten a human, a repeat attack is highly possible as salt from the blood increases the intensity of the 13 ………………...',
+      ],
+      'speakingQuestions': [
+        'Part 1: Home',
+        '- Do you live in a house or a flat?',
+        '- Which is your favourite room?',
+        '- Can you describe it?',
+        '- If you could improve one thing in your house, what would it be?',
+        'Part 1: Films',
+        '- Do you enjoy watching films?',
+        '- What kinds of films do you like most?',
+        '- Did you watch much TV as a child?',
+        '- Are foreign language films popular in your country?',
+        'Part 1: Greeting People',
+        '- How would you greet someone who was visiting your house?',
+        '- Would you greet an old friend and a stranger in the same way?',
+        '- How do you meet new people?',
+        '- Do you think first impressions are important?',
+        'Part 2: A holiday you recently had.',
+        '- Where you went',
+        '- Who you went with',
+        '- What you did there',
+        '- And why you enjoyed it',
+        'Part 3: Holidays and travelling',
+        '- If you had the chance to travel anywhere, where would you go?',
+        '- Why do you think some people like to travel alone?',
+        '- Do you think travel has changed much over the last few decades?',
+        '- How does travel change people?',
+        '- Do you think there are any disadvantages to modern travel?',
+      ],
+    },
+    // Set 2
+    {
+      'name': 'Exam Set 2',
+      'color': Colors.green,
+      'listeningTranscript': """
+Student: Hello, I'd like some information about transport from Bayswater to the city.
+
+Staff: Certainly. The express train leaves at 9:00 AM.
+
+Student: What's the nearest station?
+
+Staff: Helendale.
+
+Student: What about buses?
+
+Staff: The number 706 bus goes to Central Street.
+
+The number 792 bus goes to the station.
+
+The earlier bus leaves at 8:30 AM.
+
+Student: And the fares?
+
+Staff: For the bus, cash fare is 1.80 dollars, card fare is 1.50 dollars.
+
+Train during peak hours is 10 dollars for both cash and card.
+
+Train off-peak, which is before 5 PM or after 7:30 PM, card fare is 8.10 dollars.
+
+Commuter ferry cash 4.50, card 3.55.
+
+Tourist ferry peak is 35 dollars, whole day 65 dollars.
+""",
+      'listeningQuestions': [
+        'Questions 1-5: Complete the notes below. Write no more than two words and/or a number for each answer.',
+        'Express train leaves at (1) __________.',
+        'Nearest station is (2) __________.',
+        'Number 706 bus goes to (3) __________.',
+        'Number (4) __________ bus goes to station.',
+        'Earlier bus leaves at (5) __________.',
+      ],
+      'readingPassage': """
+The Concept of Time
+
+A The role of time in social life has been a focus of interest among social scientists for centuries. However, most have viewed time in modern society as a standard, uniform measure of passing moments. This oversight has meant that they have tended to focus on clock time. They have given much less attention to how people relate to time in their daily lives. We need to explore the different ways in which people relate to time. We need to see how these ways are shaped by social processes and how they change in different societies or historical periods.
+
+B Social scientists have made a distinction between 'clock time' and 'social time'. Clock time refers to the objective, standard time that is measured by clocks. Social time refers to the ways in which people perceive and experience time in their daily lives. Clock time is the same for everyone within a particular time zone. Social time is more subjective and can vary between individuals and groups.
+
+C In pre-industrial societies, time was based on agrarian or natural events. People rose with the sun and went to bed at dusk. Work was determined by the seasons. In industrial societies, time became more standardised. Factory work required workers to arrive and leave at specific times. This led to the development of clock time as the dominant way of organising social life.
+
+D In modern societies, time is often seen as a commodity. People talk about 'saving time' or 'wasting time'. Time management has become an important skill. However, this view of time is not universal. In some cultures, time is seen as more flexible. Meetings may start late, and deadlines may be more fluid.
+
+E The pace of life varies between societies. In Western societies, life is fast-paced. People rush from one appointment to another. In some Eastern societies, the pace is slower. People take time to enjoy meals and conversations. These differences can lead to culture shock when people travel between societies.
+
+F Technology has changed our relationship with time. Email and instant messaging allow for immediate communication. This has increased the expectation for quick responses. Social media allows people to connect across time zones. This can blur the boundaries between work time and personal time.
+
+G Gender roles influence how people relate to time. Women often juggle multiple roles, such as work and childcare. This can lead to 'time poverty'. Men may have more leisure time. However, these patterns are changing as gender roles evolve.
+
+H Age also affects perceptions of time. Children live in the present. They have little sense of future time. Adults plan for the future. Elderly people often reflect on the past. These differences highlight how time orientation changes over the life course.
+""",
+      'readingQuestions': [
+        'Questions 1-8: Which paragraph contains the following information?',
+        '1. Distinction between clock time and social time',
+        '2. Time in pre-industrial societies',
+        '3. Time as a commodity in modern societies',
+        '4. Variations in pace of life between societies',
+        '5. Impact of technology on time perception',
+        '6. Gender differences in time use',
+        '7. Age-related changes in time orientation',
+        '8. Oversight in social science research on time',
+      ],
+      'speakingQuestions': [
+        'Part 1: Work',
+        '- What is your job?',
+        '- Where do you work?',
+        '- Why did you choose that job?',
+        '- Is it a popular job in your country?',
+        '- Do you like your job?',
+        'Part 1: Study',
+        '- What do you study?',
+        '- Where do you study that?',
+        '- Why did you choose that subject?',
+        '- Is it a popular subject in your country?',
+        '- Do you like that subject?',
+        'Part 2: Describe a book you have recently read.',
+        '- What the book is about',
+        '- Why you read it',
+        '- What you learned from this book',
+        '- And explain why you would recommend this book to others',
+        'Part 3: Books and reading',
+        '- What kinds of books are popular in your country?',
+        '- Do people in your country like to read books?',
+        '- What are the benefits of reading for children?',
+        '- How has technology changed reading habits?',
+      ],
+    },
+    // Set 3
+    {
+      'name': 'Exam Set 3',
+      'color': Colors.orange,
+      'listeningTranscript': """
+Receptionist: Good morning, City Library. How can I help you?
+Caller: Hi, I'd like to join the library.
+Receptionist: Certainly. Do you live in the city?
+Caller: Yes, at 45 Oak Street.
+Receptionist: Post code?
+Caller: 12345.
+Receptionist: Name?
+Caller: Anna Johnson.
+Receptionist: Date of birth?
+Caller: 15th June 1990.
+Receptionist: You'll need to bring ID and proof of address.
+Caller: Okay. What are the borrowing limits?
+Receptionist: 10 books for 3 weeks, 4 DVDs for 1 week.
+Caller: Any fees?
+Receptionist: No, it's free.
+""",
+      'listeningQuestions': [
+        'Questions 1-4: Complete the form below.',
+        'Address: 45 (1) __________ Street',
+        'Post code: (2) __________',
+        'Name: Anna (3) __________',
+        'Date of birth: 15th (4) __________ 1990',
+        'Questions 5-7: What to bring? Choose THREE.',
+        'A. ID B. Proof of address C. Photo D. Fee',
+        'Questions 8-10: Borrowing limits.',
+        '8. Books: (8) __________ for 3 weeks',
+        '9. DVDs: 4 for (9) __________ week',
+        '10. Fees: (10) __________',
+      ],
+      'readingPassage': """
+The History of the Bicycle
+
+A The bicycle, often referred to as a bike, is a human-powered vehicle with two wheels. It has been described as the most efficient means of transportation in terms of energy expended per distance traveled. The invention of the bicycle has had an enormous impact on society, both in terms of culture and of advancing modern industrial methods.
+
+B The first verified bicycle was invented by German Baron Karl von Drais in 1817. It was called the 'draisine' or 'running machine' and had no pedals. Riders propelled it by pushing their feet against the ground. It was made entirely of wood and had iron-shod wheels.
+
+C In the 1860s, French inventors added pedals to the front wheel, creating the 'velocipede' or 'bone-shaker'. These had solid rubber tires and were uncomfortable to ride on cobblestone streets.
+
+D The 'safety bicycle' was developed in the 1880s with two wheels of equal size, a chain drive, and pneumatic tires. This design, created by John Kemp Starley, is similar to modern bicycles.
+
+E Bicycles became extremely popular in the late 19th century. They provided personal transportation at a low cost and promoted women's independence. The bicycle also influenced the development of the automobile.
+
+F In the 20th century, bicycles were used in warfare and for recreation. Mountain bikes and road bikes were developed for specific purposes.
+
+G Today, bicycles are used for commuting, exercise, and sport. Electric bicycles are gaining popularity as an eco-friendly alternative to cars.
+""",
+      'readingQuestions': [
+        'Questions 1-7: Match the paragraphs A-G with the information.',
+        '1. Invention of the draisine',
+        '2. Development of the velocipede',
+        '3. Introduction of the safety bicycle',
+        '4. Popularity in the late 19th century',
+        '5. Use in the 20th century',
+        '6. Modern uses',
+        '7. Overall impact',
+      ],
+      'speakingQuestions': [
+        'Part 1: Accommodation',
+        '- Tell me about the kind of accommodation you live in?',
+        '- Does the place you live in have many amenities?',
+        '- Is there anything you would like to change about the place you live in?',
+        '- Do you plan to live there for a long time?',
+        'Part 1: Art',
+        '- Do you like art?',
+        '- Do you think art classes are necessary?',
+        '- How do you think art classes affect children\'s development?',
+        '- What benefits can you get from painting as a hobby?',
+        'Part 2: Describe a celebrity you admire.',
+        '- Who the celebrity is',
+        '- What they are famous for',
+        '- Why you admire them',
+        'Part 3: Celebrities and media',
+        '- Do you think celebrities have a positive influence on young people?',
+        '- How has social media changed the way celebrities interact with fans?',
+        '- Should celebrities\' privacy be protected?',
+      ],
+    },
+  ];
+
+  int _selectedSet = 0;
+  bool _isExamMode = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initTts();
+  }
+
+  Future<void> _initTts() async {
+    await _flutterTts.setLanguage('en-US');
+    await _flutterTts.setSpeechRate(0.5);
+    _flutterTts.setCompletionHandler(() {
+      setState(() {
+        _isPlaying = false;
+      });
+    });
+  }
+
+  void _startRandomExam() {
+    final random = DateTime.now().millisecondsSinceEpoch % examSets.length;
+    setState(() {
+      _selectedSet = random;
+      _isExamMode = true;
+    });
+  }
+
+  Future<void> _stopAudio() async {
+    await _flutterTts.stop();
+    setState(() {
+      _isPlaying = false;
+    });
+  }
+
+  Future<void> _playAudio() async {
+    if (_isPlaying) {
+      await _stopAudio();
+      return;
+    }
+
+    setState(() {
+      _isPlaying = true;
+    });
+
+    await _flutterTts.speak(examSets[_selectedSet]['listeningTranscript'] as String);
+  }
+
+  void _exitExamMode() {
+    _stopAudio();
+    setState(() {
+      _isExamMode = false;
+    });
+  }
+
+  Widget _buildQuestionsList(List<String> questions) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: questions.map((question) {
+        if (question.startsWith('Questions') ||
+            question.startsWith('Part') ||
+            question.contains(':')) {
+          return _buildSectionTitle(question);
+        } else {
+          return _buildQuestionField(question);
+        }
+      }).toList(),
+    );
+  }
+
+  @override
+  void dispose() {
+    _flutterTts.stop();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(_isExamMode ? 'IELTS Exam - ${examSets[_selectedSet]['name']}' : 'IELTS Sample Exams'),
+        backgroundColor: _isExamMode ? examSets[_selectedSet]['color'] as Color : Theme.of(context).primaryColor,
+        foregroundColor: Colors.white,
+        actions: _isExamMode
+            ? [
+          IconButton(
+            icon: const Icon(Icons.exit_to_app),
+            onPressed: _exitExamMode,
+            tooltip: 'Exit Exam',
+          ),
+        ]
+            : null,
+      ),
+      body: _isExamMode ? _buildExamView() : _buildHomeView(),
+    );
+  }
+
+  Widget _buildHomeView() {
+    return Column(
+      children: [
+        // Hero Section
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(32),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Colors.blue[700]!, Colors.purple[700]!],
+            ),
+          ),
+          child: Column(
+            children: [
+              const Icon(Icons.school, size: 64, color: Colors.white),
+              const SizedBox(height: 16),
+              const Text(
+                'IELTS Practice Exams',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Prepare for your IELTS exam with realistic practice tests',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.white70,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: _startRandomExam,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.blue[700],
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                  textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.quiz),
+                    SizedBox(width: 8),
+                    Text('Take Random Exam'),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        // Exam Sets Section
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Available Exam Sets',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: examSets.length,
+                    itemBuilder: (context, index) {
+                      final examSet = examSets[index];
+                      return Card(
+                        elevation: 2,
+                        margin: const EdgeInsets.symmetric(vertical: 8),
+                        child: ListTile(
+                          leading: Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: examSet['color'] as Color,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Center(
+                              child: Text(
+                                '${index + 1}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                          title: Text(
+                            examSet['name'] as String,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          subtitle: const Text('Listening, Reading, Speaking'),
+                          trailing: const Icon(Icons.arrow_forward_ios),
+                          onTap: () {
+                            setState(() {
+                              _selectedSet = index;
+                            });
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildExamView() {
+    return Column(
+      children: [
+        // Exam Info Card
+        Container(
+          padding: const EdgeInsets.all(16),
+          margin: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: (examSets[_selectedSet]['color'] as Color).withOpacity(0.1),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: examSets[_selectedSet]['color'] as Color),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.assignment, color: examSets[_selectedSet]['color'] as Color),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      examSets[_selectedSet]['name'] as String,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: examSets[_selectedSet]['color'] as Color,
+                        fontSize: 16,
+                      ),
+                    ),
+                    Text(
+                      'Time: ~2 hours 45 minutes',
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: DefaultTabController(
+            length: 3,
+            child: Column(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey[50],
+                    border: const Border(
+                      bottom: BorderSide(color: Colors.grey),
+                    ),
+                  ),
+                  child: TabBar(
+                    labelColor: examSets[_selectedSet]['color'] as Color,
+                    unselectedLabelColor: Colors.grey,
+                    indicatorColor: examSets[_selectedSet]['color'] as Color,
+                    tabs: const [
+                      Tab(icon: Icon(Icons.hearing), text: 'Listening'),
+                      Tab(icon: Icon(Icons.article), text: 'Reading'),
+                      Tab(icon: Icon(Icons.record_voice_over), text: 'Speaking'),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: TabBarView(
+                    children: [
+                      // Listening
+                      SingleChildScrollView(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Card(
+                              elevation: 2,
+                              child: Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Column(
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Icon(Icons.volume_up, color: examSets[_selectedSet]['color'] as Color),
+                                        const SizedBox(width: 8),
+                                        const Text(
+                                          'Listening Audio',
+                                          style: TextStyle(fontWeight: FontWeight.bold),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 12),
+                                    ElevatedButton.icon(
+                                      onPressed: _playAudio,
+                                      icon: Icon(_isPlaying ? Icons.stop : Icons.play_arrow),
+                                      label: Text(_isPlaying ? 'Stop Audio' : 'Play Audio'),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: examSets[_selectedSet]['color'] as Color,
+                                        foregroundColor: Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            _buildQuestionsList(examSets[_selectedSet]['listeningQuestions'] as List<String>),
+                          ],
+                        ),
+                      ),
+                      // Reading
+                      SingleChildScrollView(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Card(
+                              elevation: 2,
+                              child: Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Icon(Icons.article, color: examSets[_selectedSet]['color'] as Color),
+                                        const SizedBox(width: 8),
+                                        const Text(
+                                          'Reading Passage',
+                                          style: TextStyle(fontWeight: FontWeight.bold),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      'Time: 60 minutes',
+                                      style: TextStyle(color: Colors.grey[600]),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Card(
+                              elevation: 1,
+                              child: Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Text(
+                                  examSets[_selectedSet]['readingPassage'] as String,
+                                  style: const TextStyle(fontSize: 14, height: 1.5),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            _buildQuestionsList(examSets[_selectedSet]['readingQuestions'] as List<String>),
+                          ],
+                        ),
+                      ),
+                      // Speaking
+                      SingleChildScrollView(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Card(
+                              elevation: 2,
+                              child: Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Icon(Icons.record_voice_over, color: examSets[_selectedSet]['color'] as Color),
+                                        const SizedBox(width: 8),
+                                        const Text(
+                                          'Speaking Test',
+                                          style: TextStyle(fontWeight: FontWeight.bold),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      'Time: 11-14 minutes',
+                                      style: TextStyle(color: Colors.grey[600]),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      'Practice speaking your answers aloud',
+                                      style: TextStyle(color: Colors.grey[600]),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            _buildQuestionsList(examSets[_selectedSet]['speakingQuestions'] as List<String>),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}

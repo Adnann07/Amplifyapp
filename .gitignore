@@ -1,0 +1,63 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+.env
+*.pem
+*.json
+assets/*.json
+
+# Flutter/Dart
+.dart_tool/
+.packages
+build/
+ios/.symlinks/
+ios/Pods/
+ios/Podfile.lock
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Flutter/Generated.xcconfig
+ios/Flutter/app.flx
+ios/Flutter/app.zip
+
+# Android
+android/.gradle/
+android/app/build/
+android/local.properties
+android/key.properties
+android/app/google-services.json
+android/app/src/debug/google-services.json
+
+# Web
+web/build/
+
+# Windows
+windows/flutter/generated_*.*
+windows/flutter/Flutter.gen/
+
+# Linux
+linux/flutter/generated_*.*
+linux/flutter/generated_plugins.cmake
+
+# macOS
+macos/Flutter/GeneratedPluginRegistrant.swift
+
+# VS Code
+.vscode/settings.json
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+!.idea/modules.xml
+!.idea/workspace.xml
+
+# macOS
+.DS_Store
+**/ios/Flutter/App.framework
+
+# Allow Ampliy folder
+!Ampliy/
+!Ampliy/**
+ 

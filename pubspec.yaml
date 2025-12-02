@@ -1,0 +1,53 @@
+name: amplify
+description: "A new Flutter project."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.7.2 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  firebase_core: ^2.22.0
+  firebase_analytics: ^10.10.0
+  model_viewer_plus: ^1.9.3
+  webview_flutter: ^4.13.0
+  cupertino_icons: ^1.0.8
+  flutter_tts: ^4.2.3
+  http: ^1.2.1
+  shared_preferences: ^2.3.2
+  sensors_plus: ^5.0.1
+  fl_chart: ^0.68.0
+  flutter_dotenv: ^5.1.0  # NEW
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  flutter_launcher_icons: "^0.13.1"
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/amplify.png
+    - assets/unfazedchatbot-b7bbb350ab52.json
+    - assets/images/Phospholipid_bilayer_Beige.glb
+    - assets/images/Rough_ER_Dark_Beige.glb
+    - assets/images/digestive_system__human_anatomy.glb
+    - assets/images/human_kidney.glb
+    - assets/images/dna.glb
+    - assets/images/realistic_human_lungs.glb
+    - assets/images/skeleton.glb
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  # Correct path to your new logo
+  image_path: "assets/images/amplify.png"
+  min_sdk_android: 21
+  # Optional: For Android adaptive icons
+  adaptive_icon_background: "#FFFFFF" # Use a solid color for the background
+  adaptive_icon_foreground: "assets/images/amplify.png"
