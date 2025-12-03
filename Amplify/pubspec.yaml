@@ -33,7 +33,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/amplify.png
-    - assets/unfazedchatbot-b7bbb350ab52.json
+
     - assets/images/Phospholipid_bilayer_Beige.glb
     - assets/images/Rough_ER_Dark_Beige.glb
     - assets/images/digestive_system__human_anatomy.glb
