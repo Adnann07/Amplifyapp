@@ -21,7 +21,9 @@ import 'dsadekh.dart';
 import 'sms_service.dart';
 import 'subscription_service.dart';
 import 'subscription_gate.dart';
+import 'audiobooks_page.dart';
 
+import 'elementary_games_hub.dart';
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -296,6 +298,19 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                     ),
 
                     const SizedBox(height: 20),
+                    _buildSimpleCard(
+                      context,
+                      'Audiobooks',
+                      'Listen to academic audiobook',
+                      Icons.headphones,
+                      [Colors.amber.shade600, Colors.amber.shade400],
+                      const AudiobooksPage(),
+                      'Learn while enjoying your hobbies.',
+                    ),
+
+
+
+                    const SizedBox(height: 20),
 
                     _buildSimpleCard(
                       context,
@@ -320,7 +335,18 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                     ),
 
                     const SizedBox(height: 20),
+                    _buildSimpleCard(
+                      context,
+                      'Elementary Games',
+                      'Grades 1-5 Math & English',
+                      Icons.games_outlined,
+                      [Colors.pink.shade600, Colors.purple.shade400],
+                      const ElementaryGamesHub(),
+                      'Fun educational games for kids in grades 1-5.',
+                    ),
 
+
+                    const SizedBox(height: 20),
                     _buildSimpleCard(
                       context,
                       'Gamify',

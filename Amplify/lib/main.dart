@@ -6,7 +6,7 @@ import 'package:firebase_analytics/observer.dart';
 import 'firebase_options.dart'; // Generated via FlutterFire CLI
 import 'homepage.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-
+import 'subscription_service.dart'; // Add this import
 
 // Global instances for Analytics
 final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
@@ -16,11 +16,13 @@ FirebaseAnalyticsObserver(analytics: analytics);
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-
   // Initialize Firebase
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // Initialize Subscription Service (checks saved subscription status)
+  await SubscriptionService.initialize();
 
   runApp(const MyApp());
 }
