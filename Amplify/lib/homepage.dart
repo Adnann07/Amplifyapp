@@ -24,6 +24,7 @@ import 'subscription_gate.dart';
 import 'audiobooks_page.dart';
 
 import 'elementary_games_hub.dart';
+import 'medi.dart';
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -272,6 +273,20 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                       const HSCExamPage(),
                       'HSC mock mcq tests',
                     ),
+
+
+                    const SizedBox(height: 20),
+
+                    _buildSimpleCard(
+                      context,
+                      'MBBS Flashcards',
+                      'Exam prep Cards',
+                      Icons.menu_book,
+                      [Colors.indigo.shade600, Colors.teal.shade500],
+                      const MedicalFlashcardPage(),
+                      'Revision materials for exams',
+                    ),
+
 
                     const SizedBox(height: 20),
 
