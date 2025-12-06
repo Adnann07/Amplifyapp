@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="amplify.png" alt="Amplify Logo" width="180">
+  <img src="amplify" alt="Amplify Logo" width="180">
   <br>
   <h1>🔬 Amplify</h1>
   
