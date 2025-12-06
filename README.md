@@ -177,7 +177,7 @@ This project is licensed under the MIT License – see the [LICENSE](LICENSE) fi
 - **Flutter & Dart** teams for the cross-platform framework
 - **AWS** for reliable cloud infrastructure
 - **Google Gemini** for AI capabilities
-- **Applink/BDApps** for telecom integration
+- **Applink** for telecom integration
 - HSC teachers and students who inspired this virtual lab concept
 
 ---
