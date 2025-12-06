@@ -2,7 +2,7 @@
   <img src="amplify.png" alt="Amplify Logo" width="180">
   <br>
   <h1>🔬 Amplify</h1>
-  
+   
   ![Flutter](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)
   ![Dart](https://img.shields.io/badge/Dart-0175C2?style=for-the-badge&logo=dart&logoColor=white)
   ![PHP](https://img.shields.io/badge/PHP-777BB4?style=for-the-badge&logo=php&logoColor=white)
