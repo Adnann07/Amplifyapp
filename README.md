@@ -227,9 +227,14 @@ Subscribe to receive exam tips, daily vocabulary, and study tricks directly to y
 
 ---
 
-## 🎨 Screenshots
+## 🎨 Features summary 
 
-_Add your app screenshots here to showcase the UI and features_
+<div align="center">
+  <img src="amp.png" alt="Amplify Logo">
+  
+
+</div>
+
 
 ---
 
