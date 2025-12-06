@@ -25,6 +25,12 @@ import 'audiobooks_page.dart';
 
 import 'elementary_games_hub.dart';
 import 'medi.dart';
+
+import 'vocab.dart';
+
+import 'game.dart';
+import 'university_circulars_page.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -60,7 +66,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     super.dispose();
   }
 
-  // NEW: Handle card tap with subscription check
+  // Handle card tap with subscription check
   void _handleCardTap(BuildContext context, String featureName, Widget page) {
     if (SubscriptionService.isSubscribed) {
       // Already subscribed - go directly to feature
@@ -191,7 +197,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
                     const SizedBox(height: 40),
 
-                    // ALL CARDS - NORMAL DISPLAY, SUBSCRIPTION ON TAP
+                    // ALL CARDS
                     _buildSimpleCard(
                       context,
                       'Practical Examples',
@@ -264,7 +270,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
                     const SizedBox(height: 20),
 
-                    _buildSimpleCard(
+                    // FREE - HSC Mock Test
+                    _buildDirectCard(
                       context,
                       'HSC mock test',
                       'Physics, Chemistry, Math, Biology',
@@ -274,6 +281,18 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                       'HSC mock mcq tests',
                     ),
 
+
+
+                    const SizedBox(height: 20),
+                    _buildSimpleCard(
+                      context,
+                      'Updates',
+                      'Latest updates including circulars and scholarships',
+                      Icons.campaign_outlined,
+                      [Colors.deepOrange.shade600, Colors.orange.shade400],
+                      const UniversityCircularsPage(),
+                      'Stay updated with important deadlines.',
+                    ),
 
                     const SizedBox(height: 20),
 
@@ -286,7 +305,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                       const MedicalFlashcardPage(),
                       'Revision materials for exams',
                     ),
-
 
                     const SizedBox(height: 20),
 
@@ -302,6 +320,19 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
                     const SizedBox(height: 20),
 
+                    // FREE - জরুরি অ্যাকশন (Emergency Acts)
+                    _buildDirectCard(
+                      context,
+                      'জরুরি অ্যাকশন',
+                      'জীবন বাঁচানোর ভিডিও গেম',
+                      Icons.emergency,
+                      [Colors.red.shade600, Colors.orange.shade600],
+                      const EmergencyActsPage(),
+                      'CPR, ভূমিকম্প, আগুন থেকে বাঁচান! সময়ের চ্যালেঞ্জ!',
+                    ),
+
+                    const SizedBox(height: 20),
+
                     _buildSimpleCard(
                       context,
                       'IELTS Prep',
@@ -313,6 +344,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                     ),
 
                     const SizedBox(height: 20),
+
                     _buildSimpleCard(
                       context,
                       'Audiobooks',
@@ -322,8 +354,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                       const AudiobooksPage(),
                       'Learn while enjoying your hobbies.',
                     ),
-
-
 
                     const SizedBox(height: 20),
 
@@ -341,6 +371,18 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
                     _buildSimpleCard(
                       context,
+                      'IELTS Vocabulary',
+                      '300 essential words with Bangla meanings',
+                      Icons.book_outlined,
+                      [Colors.indigo.shade600, Colors.indigo.shade400],
+                      const VocabularyFlashcardPage(),
+                      'Flip through flashcards to master IELTS vocabulary with Bengali translations.',
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    _buildSimpleCard(
+                      context,
                       'Mechanical Engg',
                       'Statics & Fluid Dynamics',
                       Icons.engineering,
@@ -350,6 +392,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                     ),
 
                     const SizedBox(height: 20),
+
                     _buildSimpleCard(
                       context,
                       'Elementary Games',
@@ -360,9 +403,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                       'Fun educational games for kids in grades 1-5.',
                     ),
 
-
                     const SizedBox(height: 20),
-                    _buildSimpleCard(
+
+                    // FREE - Gamify (Brain Sharper)
+                    _buildDirectCard(
                       context,
                       'Gamify',
                       'Sharpen your brain while having fun',
@@ -560,7 +604,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 
-  // Simple Card - NOW HANDLES SUBSCRIPTION ON TAP
+  // Simple Card - SUBSCRIPTION REQUIRED
   Widget _buildSimpleCard(
       BuildContext context,
       String title,
@@ -573,6 +617,105 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     return RepaintBoundary(
       child: InkWell(
         onTap: () => _handleCardTap(context, title, page),
+        borderRadius: BorderRadius.circular(25),
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 20),
+          padding: const EdgeInsets.all(25),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: gradientColors,
+            ),
+            borderRadius: BorderRadius.circular(25),
+            boxShadow: [
+              BoxShadow(
+                color: gradientColors[0].withOpacity(0.3),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.25),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  icon,
+                  size: 32,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(width: 20),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: Colors.white.withOpacity(0.95),
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      description,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.white.withOpacity(0.85),
+                        height: 1.5,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 10),
+              Icon(
+                Icons.arrow_forward_ios_rounded,
+                color: Colors.white.withOpacity(0.8),
+                size: 20,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Direct Card - NO SUBSCRIPTION REQUIRED (FREE ACCESS)
+  Widget _buildDirectCard(
+      BuildContext context,
+      String title,
+      String subtitle,
+      IconData icon,
+      List<Color> gradientColors,
+      Widget page,
+      String description,
+      ) {
+    return RepaintBoundary(
+      child: InkWell(
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => page),
+        ),
         borderRadius: BorderRadius.circular(25),
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -841,7 +984,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               Icon(Icons.code, size: 16, color: Colors.grey.shade600),
               const SizedBox(width: 8),
               Text(
-                'Built with Flutter • © 2025 Amplify',
+                'Built with Love • © 2025 Amplify',
                 style: TextStyle(
                   fontSize: 12,
                   color: Colors.grey.shade600,

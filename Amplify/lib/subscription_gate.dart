@@ -203,6 +203,9 @@ class _SubscriptionGateState extends State<SubscriptionGate> {
                     decoration: InputDecoration(
                       labelText: 'Banglalink Number',
                       hintText: '019XXXXXXXX',
+                      hintStyle: TextStyle(
+                        color: Colors.grey.shade600,
+                      ),
                       prefixIcon: const Icon(Icons.phone_android),
                       prefixText: '+88 ',
                       filled: true,
@@ -275,7 +278,11 @@ class _SubscriptionGateState extends State<SubscriptionGate> {
                     ),
                     decoration: InputDecoration(
                       labelText: 'Enter OTP',
-                      hintText: '000000',
+                      hintText: 'xxxxxx',
+                      hintStyle: TextStyle(
+                        color: Colors.grey.shade600,
+                        letterSpacing: 8,
+                      ),
                       prefixIcon: const Icon(Icons.lock_outline),
                       filled: true,
                       fillColor: Colors.grey.shade50,

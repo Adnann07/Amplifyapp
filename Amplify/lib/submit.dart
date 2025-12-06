@@ -63,7 +63,7 @@ class _SubmitState extends State<Submit> {
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 8.0),
                 child: Text(
-                  "Powered by Google Gemini",
+                  " ",
                   style: TextStyle(
                     color: Colors.white54,
                     fontSize: 12,
@@ -172,7 +172,7 @@ class _SubmitState extends State<Submit> {
               Align(
                 alignment: Alignment.center,
                 child: Text(
-                  "AI features powered by Google Gemini",
+                  " ",
                   style: TextStyle(
                     color: Colors.white54,
                     fontSize: 12,
