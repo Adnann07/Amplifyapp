@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 
 class GeminiAPI {
   // Use your amplifyv2 key directly (temporary - see security note below)
-  static const String _apiKey = 'API_KEY';
+  static const String _apiKey = 'key';
   static const String _url = "https://api.groq.com/openai/v1/chat/completions";
 
   static Future<String> generate(String prompt) async {

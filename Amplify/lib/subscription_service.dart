@@ -66,11 +66,9 @@ class SubscriptionService {
         final isActive = await checkSubscriptionStatus(_currentPhoneNumber);
 
         if (!isActive && _isSubscribed) {
-          // User unsubscribed - revoke access immediately
           print('❌ Subscription expired or cancelled - revoking access');
           await _revokeSubscription();
         } else if (isActive && !_isSubscribed) {
-          // User resubscribed elsewhere - grant access
           print('✅ Subscription detected - granting access');
           await _saveSubscriptionState(true, _currentPhoneNumber!);
         }
@@ -98,37 +96,108 @@ class SubscriptionService {
     print('🚫 Subscription access revoked');
   }
 
-  // Check if input is the test bypass number - Works in ALL modes
+  // Check if input is the test bypass number
   static bool _isTestBypass(String input) {
     final result = input.trim() == _testBypassNumber;
     print('🔍 Test Bypass Check: input="${input.trim()}", match=$result');
     return result;
   }
 
-  // "01XXXXXXXXX" -> "tel:8801XXXXXXXXX"
+  // FIXED: Proper phone number formatting
   static String formatMsisdn(String raw) {
-    final digits = raw.replaceAll(RegExp(r'[^\d]'), '');
-    print('Raw phone input: $raw');
-    print('Digits only: $digits');
+    print('🔍 formatMsisdn called with: "$raw"');
 
-    String msisdn;
+    // Remove all non-digit characters
+    final digits = raw.replaceAll(RegExp(r'[^\d]'), '');
+    print('🔍 After removing non-digits: "$digits" (${digits.length} chars)');
+
+    String normalized;
+
+    // Handle different input formats
     if (digits.startsWith('880')) {
-      msisdn = digits;
+      // Format: 880XXXXXXXXXX (13 digits) -> take last 10 digits
+      if (digits.length >= 13) {
+        normalized = digits.substring(3, 13); // Get 10 digits after 880
+        print('🔍 Detected 880 prefix, extracted: "$normalized"');
+      } else {
+        print('❌ Invalid length after 880 prefix: ${digits.length}');
+        normalized = digits.substring(3);
+      }
     } else if (digits.startsWith('01')) {
-      msisdn = '880${digits.substring(1)}';
+      // Format: 01XXXXXXXXX (11 digits) -> take last 10 digits
+      if (digits.length >= 11) {
+        normalized = digits.substring(1, 11); // Remove leading 0, get 10 digits
+        print('🔍 Detected 01 prefix, extracted: "$normalized"');
+      } else {
+        print('❌ Invalid length with 01 prefix: ${digits.length}');
+        normalized = digits.substring(1);
+      }
+    } else if (digits.startsWith('1') && digits.length == 10) {
+      // Format: 1XXXXXXXXX (10 digits)
+      normalized = digits;
+      print('🔍 Detected 10-digit format starting with 1: "$normalized"');
     } else {
-      msisdn = '880$digits';
+      print('⚠️ Unexpected format, using as-is: "$digits"');
+      normalized = digits;
     }
 
-    final formatted = 'tel:$msisdn';
-    print('Formatted MSISDN: $formatted');
+    final formatted = 'tel:880$normalized';
+    print('✅ Final formatted MSISDN: "$formatted"');
     return formatted;
   }
 
+  // FIXED: Validate Banglalink number
+  static bool _isValidBanglalink(String raw) {
+    print('🔍 _isValidBanglalink called with: "$raw"');
+
+    final digits = raw.replaceAll(RegExp(r'[^\d]'), '');
+    print('🔍 Digits only: "$digits" (${digits.length} chars)');
+
+    // Normalize to 11-digit format starting with 0
+    String normalized;
+    if (digits.startsWith('880') && digits.length >= 13) {
+      normalized = '0${digits.substring(3, 13)}';
+    } else if (digits.startsWith('01') && digits.length >= 11) {
+      normalized = digits.substring(0, 11);
+    } else if (digits.startsWith('1') && digits.length == 10) {
+      normalized = '0$digits';
+    } else {
+      normalized = digits;
+    }
+
+    print('🔍 Normalized: "$normalized" (${normalized.length} chars)');
+
+    // Must be exactly 11 digits starting with 019
+    if (normalized.length != 11) {
+      print('❌ Invalid length: ${normalized.length} (expected 11)');
+      return false;
+    }
+
+    if (!normalized.startsWith('019')) {
+      print('❌ Does not start with 019');
+      return false;
+    }
+
+    // Fourth digit should be 1-9 for valid Banglalink prefixes
+    final fourthDigit = normalized[3];
+    if (!RegExp(r'[1-9]').hasMatch(fourthDigit)) {
+      print('❌ Invalid Banglalink prefix: 019$fourthDigit');
+      return false;
+    }
+
+    print('✅ Valid Banglalink number: $normalized');
+    return true;
+  }
+
   static Future<Map<String, dynamic>?> requestOtp(String rawPhoneNumber) async {
-    // TEST BYPASS CHECK - Works in all build modes
+    print('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    print('🔐 REQUEST OTP CALLED');
+    print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    print('📱 Raw input: "$rawPhoneNumber"');
+
+    // TEST BYPASS CHECK
     if (_isTestBypass(rawPhoneNumber)) {
-      print('🔓 TEST MODE ACTIVATED - Bypass number detected');
+      print('🔓 TEST MODE ACTIVATED');
       _isTestMode = true;
       _currentPhoneNumber = 'test_mode';
       _currentReferenceNo = 'TEST_REF_${DateTime.now().millisecondsSinceEpoch}';
@@ -140,10 +209,10 @@ class SubscriptionService {
       };
     }
 
-    // Validate Banglalink number (019XXXXXXXX)
-    final digits = rawPhoneNumber.replaceAll(RegExp(r'[^\d]'), '');
-    if (!digits.startsWith('019') || digits.length != 11) {
-      print('❌ Invalid Banglalink number format');
+    // Validate Banglalink number
+    if (!_isValidBanglalink(rawPhoneNumber)) {
+      print('❌ VALIDATION FAILED');
+      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
       return {
         'statusCode': 'E1001',
         'statusDetail': 'Only Banglalink numbers (019XXXXXXXX) are supported',
@@ -161,44 +230,66 @@ class SubscriptionService {
         'subscriberId': formattedPhone,
       };
 
-      print('OTP request -> $url');
+      print('\n📤 SENDING REQUEST');
+      print('URL: $url');
       print('Payload: ${jsonEncode(data)}');
+      print('subscriberId: "$formattedPhone"');
 
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json;charset=utf-8'},
         body: jsonEncode(data),
+      ).timeout(
+        const Duration(seconds: 30),
+        onTimeout: () {
+          print('⏱️ REQUEST TIMEOUT after 30 seconds');
+          return http.Response('{"statusCode":"E9999","statusDetail":"Request timeout"}', 408);
+        },
       );
 
-      print('OTP request status: ${response.statusCode}');
-      print('OTP response body: ${response.body}');
+      print('\n📥 RESPONSE RECEIVED');
+      print('Status Code: ${response.statusCode}');
+      print('Response Body: ${response.body}');
+      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
       if (response.statusCode == 200) {
-        final responseData =
-        jsonDecode(response.body) as Map<String, dynamic>;
+        final responseData = jsonDecode(response.body) as Map<String, dynamic>;
 
         if (responseData['statusCode'] == 'S1000') {
           _currentReferenceNo = responseData['referenceNo']?.toString();
           _currentPhoneNumber = formattedPhone;
           _isTestMode = false;
-          print('Stored referenceNo: $_currentReferenceNo');
+          print('✅ OTP REQUEST SUCCESS');
+          print('Reference No: $_currentReferenceNo');
         } else {
-          print(
-              'OTP request failed: ${responseData['statusCode']} - ${responseData['statusDetail']}');
+          print('❌ OTP REQUEST FAILED');
+          print('Status Code: ${responseData['statusCode']}');
+          print('Status Detail: ${responseData['statusDetail']}');
         }
 
         return responseData;
+      } else {
+        print('❌ HTTP ERROR: ${response.statusCode}');
+        return {
+          'statusCode': 'E${response.statusCode}',
+          'statusDetail': 'HTTP Error: ${response.statusCode}',
+        };
       }
-      return null;
     } catch (e, st) {
-      print('requestOtp exception: $e');
+      print('❌ EXCEPTION CAUGHT');
+      print('Error: $e');
+      print('Stack trace:');
       print(st);
-      return null;
+      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+      return {
+        'statusCode': 'E9999',
+        'statusDetail': 'Exception: $e',
+      };
     }
   }
 
   static Future<Map<String, dynamic>?> verifyOtp(String otp) async {
-    // TEST BYPASS CHECK - Removed kDebugMode, works in all modes
+    // TEST BYPASS CHECK
     if (_isTestMode) {
       if (otp == _testBypassOtp) {
         print('🔓 TEST MODE - OTP verification bypassed');
@@ -218,7 +309,7 @@ class SubscriptionService {
     }
 
     if (_currentReferenceNo == null) {
-      print('No referenceNo stored; cannot verify OTP.');
+      print('❌ No referenceNo stored; cannot verify OTP.');
       return null;
     }
 
@@ -233,8 +324,8 @@ class SubscriptionService {
         'otp': otp,
       };
 
-      print('OTP verify -> $url');
-      print('Payload: ${jsonEncode(data)}');
+      print('🔐 OTP verify -> $url');
+      print('📤 Payload: ${jsonEncode(data)}');
 
       final response = await http.post(
         url,
@@ -242,31 +333,55 @@ class SubscriptionService {
         body: jsonEncode(data),
       );
 
-      print('Verify status: ${response.statusCode}');
-      print('Verify body: ${response.body}');
+      print('📊 Verify status: ${response.statusCode}');
+      print('📥 Verify body: ${response.body}');
 
       if (response.statusCode == 200) {
-        final responseData =
-        jsonDecode(response.body) as Map<String, dynamic>;
+        final responseData = jsonDecode(response.body) as Map<String, dynamic>;
+        print('📥 Parsed verify response: ${jsonEncode(responseData)}');
 
-        if (responseData['statusCode'] == 'S1000' &&
-            (responseData['subscriptionStatus'] == 'REGISTERED' ||
-                responseData['subscriptionStatus'] == 'REGISTERED.')) {
+        if (responseData['statusCode'] == 'S1000') {
+          final subStatus = responseData['subscriptionStatus']?.toString().toUpperCase();
 
-          // Save subscription state persistently
-          await _saveSubscriptionState(true, _currentPhoneNumber!);
-          print('✅ Subscription confirmed and saved');
+          if (subStatus == 'INITIAL' ||
+              subStatus == 'REGISTERED' ||
+              subStatus == 'REGISTERED.') {
 
-          if (_currentPhoneNumber != null && !_isTestMode) {
-            await SmsService.subscribeUser(_currentPhoneNumber!, subscribe: true);
+            print('✅ OTP verified with status: $subStatus');
+
+            if (subStatus == 'INITIAL' && _currentPhoneNumber != null) {
+              print('🔄 Completing subscription registration...');
+              final subResponse = await SmsService.subscribeUser(
+                  _currentPhoneNumber!,
+                  subscribe: true
+              );
+
+              print('📥 Subscription API response: ${jsonEncode(subResponse)}');
+            }
+
+            await _saveSubscriptionState(true, _currentPhoneNumber!);
+            print('💾 Subscription confirmed and saved');
+
+            if (_currentPhoneNumber != null && !_isTestMode) {
+              await SmsService.sendSms(
+                message: 'Welcome to Amplify! Your subscription is now active. Enjoy unlimited access to all features.',
+                destinationAddresses: [_currentPhoneNumber!],
+              );
+            }
+
+            return responseData;
+          } else {
+            print('❌ Unexpected subscription status: $subStatus');
           }
+        } else {
+          print('❌ Verification failed with code: ${responseData['statusCode']}');
         }
 
         return responseData;
       }
       return null;
     } catch (e, st) {
-      print('verifyOtp exception: $e');
+      print('❌ verifyOtp exception: $e');
       print(st);
       return null;
     }
@@ -275,22 +390,20 @@ class SubscriptionService {
   static Future<bool> checkSubscriptionStatus(String? rawPhoneNumber) async {
     if (rawPhoneNumber == null) return false;
 
-    // Skip API call for test mode - Works in all modes
-    if (_isTestMode) {
+    if (_isTestMode || rawPhoneNumber == 'test_mode') {
       print('🔓 Test mode active - returning subscribed status');
       return _isSubscribed;
     }
 
     final formattedPhone = formatMsisdn(rawPhoneNumber);
-    final subResponse =
-    await SmsService.subscribeUser(formattedPhone, subscribe: true);
-    await SmsService.getBaseSize();
+    final subResponse = await SmsService.subscribeUser(formattedPhone, subscribe: true);
+
+    print('📥 Check subscription response: ${jsonEncode(subResponse)}');
 
     final isActive = subResponse?['statusCode'] == 'S1000' &&
-        (subResponse?['subscriptionStatus'] == 'REGISTERED' ||
-            subResponse?['subscriptionStatus'] == 'REGISTERED.');
+        (subResponse?['subscriptionStatus']?.toString().toUpperCase() == 'REGISTERED' ||
+            subResponse?['subscriptionStatus']?.toString().toUpperCase() == 'REGISTERED.');
 
-    // Update local state based on server response
     if (isActive != _isSubscribed) {
       await _saveSubscriptionState(isActive, formattedPhone);
     }

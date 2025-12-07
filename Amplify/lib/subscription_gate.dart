@@ -1,5 +1,5 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'sms_service.dart';
 import 'subscription_service.dart';
 
@@ -66,8 +66,7 @@ class _SubscriptionGateState extends State<SubscriptionGate> {
       // Only send SMS for real phone numbers, not test mode
       if (msisdn != null && msisdn != 'test_mode') {
         await SmsService.sendSms(
-          message:
-          'Welcome to Amplify learning! Your OTP has been sent. Verify to unlock all features.',
+          message: 'Your Amplify OTP has been sent. Please check your messages and verify to unlock all features.',
           destinationAddresses: [msisdn],
         );
       }
@@ -78,8 +77,10 @@ class _SubscriptionGateState extends State<SubscriptionGate> {
             content: Text(
                 msisdn == 'test_mode'
                     ? '🔓 Test mode: Use OTP 676767'
-                    : 'OTP sent to your phone!'
+                    : 'OTP sent to your phone! Check your SMS.'
             ),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 3),
           ),
         );
       }
@@ -90,8 +91,18 @@ class _SubscriptionGateState extends State<SubscriptionGate> {
   }
 
   Future<void> _verifyOtp() async {
-    if (_otpController.text.length != 6) {
-      setState(() => _errorMessage = 'Enter valid 6-digit OTP');
+    // Trim whitespace from OTP input
+    final otpText = _otpController.text.trim();
+
+    // Validate OTP length - Accept 5-6 digits
+    if (otpText.length < 5 || otpText.length > 6) {
+      setState(() => _errorMessage = 'Please enter the OTP (5-6 digits)');
+      return;
+    }
+
+    // Validate OTP contains only digits
+    if (!RegExp(r'^\d{5,6}$').hasMatch(otpText)) {
+      setState(() => _errorMessage = 'OTP must contain only numbers');
       return;
     }
 
@@ -100,35 +111,54 @@ class _SubscriptionGateState extends State<SubscriptionGate> {
       _errorMessage = null;
     });
 
-    final result = await SubscriptionService.verifyOtp(_otpController.text);
+    print('🔐 Verifying OTP: $otpText (${otpText.length} digits)');
+
+    final result = await SubscriptionService.verifyOtp(otpText);
 
     setState(() {
       _isLoading = false;
     });
 
-    if (result != null &&
-        result['statusCode'] == 'S1000' &&
-        (result['subscriptionStatus'] == 'REGISTERED' ||
-            result['subscriptionStatus'] == 'REGISTERED.')) {
-      if (mounted) {
-        Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('✅ Subscription successful! Welcome to Amplify!'),
-            backgroundColor: Colors.green,
-          ),
-        );
+    print('📥 UI Verify response: $result');
+
+    // FIXED: Accept INITIAL, REGISTERED, or REGISTERED. with S1000 as success
+    if (result != null && result['statusCode'] == 'S1000') {
+      final subStatus = result['subscriptionStatus']?.toString().toUpperCase();
+
+      if (subStatus == 'INITIAL' ||
+          subStatus == 'REGISTERED' ||
+          subStatus == 'REGISTERED.') {
+
+        if (mounted) {
+          Navigator.of(context).pop();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('✅ Subscription successful! Welcome to Amplify!'),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 4),
+            ),
+          );
+        }
+        return; // Success!
       }
-    } else {
-      setState(() => _errorMessage = 'Invalid OTP. Please try again.');
     }
+
+    // Error handling
+    final errorDetail = result?['statusDetail'] ?? 'Invalid OTP. Please try again.';
+    setState(() => _errorMessage = 'Verification failed: $errorDetail');
+
+    print('❌ OTP verification failed: $errorDetail');
+    // Clear OTP field on error for better UX
+    _otpController.clear();
   }
 
   @override
   Widget build(BuildContext context) {
     // Wait for initialization
     if (!_isInitialized) {
-      return const Center(child: CircularProgressIndicator());
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
     }
 
     final isSubscribed = SubscriptionService.isSubscribed;
@@ -168,29 +198,25 @@ class _SubscriptionGateState extends State<SubscriptionGate> {
                 const SizedBox(height: 20),
 
                 // Title
-                Flexible(
-                  child: Text(
-                    'Unlock ${widget.featureName}',
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 0.5,
-                    ),
+                Text(
+                  'Unlock ${widget.featureName}',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.5,
                   ),
                 ),
                 const SizedBox(height: 8),
 
                 // Subtitle
-                Flexible(
-                  child: Text(
-                    'Subscribe to access all premium features and enhance your learning experience',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.grey.shade600,
-                      fontSize: 14,
-                      height: 1.4,
-                    ),
+                Text(
+                  'Subscribe to access all premium features and enhance your learning experience',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.grey.shade600,
+                    fontSize: 14,
+                    height: 1.4,
                   ),
                 ),
                 const SizedBox(height: 28),
@@ -200,11 +226,15 @@ class _SubscriptionGateState extends State<SubscriptionGate> {
                   TextField(
                     controller: _phoneController,
                     keyboardType: TextInputType.phone,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      LengthLimitingTextInputFormatter(11),
+                    ],
                     decoration: InputDecoration(
                       labelText: 'Banglalink Number',
                       hintText: '019XXXXXXXX',
                       hintStyle: TextStyle(
-                        color: Colors.grey.shade600,
+                        color: Colors.grey.shade400,
                       ),
                       prefixIcon: const Icon(Icons.phone_android),
                       prefixText: '+88 ',
@@ -239,6 +269,7 @@ class _SubscriptionGateState extends State<SubscriptionGate> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
+                        disabledBackgroundColor: Colors.grey.shade300,
                       ),
                       child: _isLoading
                           ? const SizedBox(
@@ -270,18 +301,22 @@ class _SubscriptionGateState extends State<SubscriptionGate> {
                     controller: _otpController,
                     keyboardType: TextInputType.number,
                     maxLength: 6,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      LengthLimitingTextInputFormatter(6),
+                    ],
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      letterSpacing: 8,
+                      letterSpacing: 6,
                     ),
                     decoration: InputDecoration(
-                      labelText: 'Enter OTP',
-                      hintText: 'xxxxxx',
+                      labelText: 'Enter OTP Code',
+                      hintText: 'XXXXX',
                       hintStyle: TextStyle(
-                        color: Colors.grey.shade600,
-                        letterSpacing: 8,
+                        color: Colors.grey.shade400,
+                        letterSpacing: 6,
                       ),
                       prefixIcon: const Icon(Icons.lock_outline),
                       filled: true,
@@ -300,7 +335,7 @@ class _SubscriptionGateState extends State<SubscriptionGate> {
                         borderSide: BorderSide(color: Colors.green.shade400, width: 2),
                       ),
                       errorText: _errorMessage,
-                      errorMaxLines: 2,
+                      errorMaxLines: 3,
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -316,6 +351,7 @@ class _SubscriptionGateState extends State<SubscriptionGate> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
+                        disabledBackgroundColor: Colors.grey.shade300,
                       ),
                       child: _isLoading
                           ? const SizedBox(
@@ -353,6 +389,9 @@ class _SubscriptionGateState extends State<SubscriptionGate> {
                     },
                     icon: const Icon(Icons.arrow_back, size: 18),
                     label: const Text('Change Number'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: Colors.blue.shade600,
+                    ),
                   ),
                 ],
                 const SizedBox(height: 8),
@@ -384,13 +423,11 @@ class _SubscriptionGateState extends State<SubscriptionGate> {
                   onPressed: () => Navigator.of(context).pop(),
                   style: TextButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                    foregroundColor: Colors.grey.shade600,
                   ),
-                  child: Text(
+                  child: const Text(
                     'Maybe Later',
-                    style: TextStyle(
-                      color: Colors.grey.shade600,
-                      fontSize: 15,
-                    ),
+                    style: TextStyle(fontSize: 15),
                   ),
                 ),
               ],
