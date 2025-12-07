@@ -91,15 +91,15 @@
 - Programming for robots
 - Real-world robotics applications
 
-### 📱 SMS Services for Rural Students
-> Designed for students without reliable internet access
+### 📱 SMS Services specialized for Rural Students
+> Designed for students without reliable internet access and no smartphones
 
 - **Exam Suggestions**: Board exam tips delivered via SMS
 - **Daily Vocabulary**: One word per day to build language skills
 - **Scientific Facts**: Interesting science facts daily
 - **Study Tricks & Tips**: Learning strategies and shortcuts
 - **Mnemonic Tricks**: Memory aids for complex topics
-- Powered by **SMS API**, **Subscription API**, and **CaaS API**
+
 
 ### 💳 Subscription System
 - OTP-based verification via **Applink SMS API**
